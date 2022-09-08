@@ -1,47 +1,59 @@
-import java.util.Scanner;
+import java.io.*;
 
 public class Basket {
 
-    public static void main(String[] args) {
+    protected String[] products;
+    protected int[] prices;
+    protected int totalPrice;
+    protected int[] amountOfProductsInBasket;
 
-        String[] products = {"Яблоко", "Помидор", "Апельсин", "Груша"};
-        int[] prices = {30, 50, 70, 40};
-        int sumProducts = 0;
+    public Basket(String[] products, int[] prices) {
+        this.products = products;
+        this.prices = prices;
+        this.amountOfProductsInBasket = new int[products.length];
+    }
 
-        Scanner scanner = new Scanner(System.in);
-        int[] amountOfProductsInBasket = new int[products.length];
+    public void addToCart(int productNum, int amount) {
+        amountOfProductsInBasket[productNum] += amount;
+    }
 
-        System.out.println("Список возможных товаров для покупки");
-        for (int i = 0; i < products.length; i++) {
-            String product = products[i];
-            int price = prices[i];
-            int position = i + 1;
-            System.out.println(position + ". " + product + " " + price + " руб/шт");
-        }
-
-        while (true) {
-            int productNumber;
-            int productCount;
-            System.out.println("Выберите товар и количество или введите `end`");
-            String inputString = scanner.nextLine();
-            if (inputString.equals("end")) {
-                break;
-            }
-            String[] input = inputString.split(" ");
-            productNumber = Integer.parseInt(input[0]);
-            productCount = Integer.parseInt(input[1]);
-            amountOfProductsInBasket[productNumber - 1] += productCount;
-        }
-
+    public void printCart() {
         System.out.println("Ваша корзина:");
         for (int i = 0; i < products.length; i++) {
             if (amountOfProductsInBasket[i] != 0) {
-                sumProducts = sumProducts + (prices[i] * amountOfProductsInBasket[i]);
+                totalPrice = totalPrice + (prices[i] * amountOfProductsInBasket[i]);
                 System.out.println(
                         products[i] + " " + amountOfProductsInBasket[i] + " шт. " + prices[i] + " руб/шт. "
                                 + (amountOfProductsInBasket[i] * prices[i]) + " рублей в сумме");
             }
         }
-        System.out.println("Итого: " + sumProducts + " рублей");
+        System.out.println("Итого: " + totalPrice + " рублей");
+        totalPrice = 0;
+    }
+
+    public void saveTxt(File textFile) throws IOException {
+        BufferedWriter buff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(textFile)));
+        for (int i = 0; i < amountOfProductsInBasket.length; i++) {
+            buff.write(amountOfProductsInBasket[i] + ";");
+        }
+        buff.close();
+    }
+
+    public static String loadFromTxtFile(File textFile) throws IOException {
+        BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream(textFile)));
+        String buffString = " ";
+        while (buff.ready()) {
+            buffString = buff.readLine();
+        }
+        buff.close();
+        return buffString;
+    }
+
+    public String[] getProducts() {
+        return products;
+    }
+
+    public int[] getPrices() {
+        return prices;
     }
 }

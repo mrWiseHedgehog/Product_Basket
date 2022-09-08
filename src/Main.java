@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        File file = new File("basket.txt");
+        File file = new File("basket.bin");
 
         String[] products = new String[]{"Яблоко", "Помидор", "Апельсин", "Груша"};
         int[] prices = new int[]{30, 50, 70, 40};
@@ -21,11 +21,7 @@ public class Main {
             System.out.println(position + ". " + product + " " + price + " руб/шт");
         }
         if (!file.createNewFile()) {
-            String oldBasket = Basket.loadFromTxtFile(file);
-            String[] oldBasketArr = oldBasket.split(";");
-            for (int i = 0; i < oldBasketArr.length; i++) {
-                basket.addToCart(i, Integer.parseInt(oldBasketArr[i]));
-            }
+            basket = Basket.loadFromBinFile(file);
             basket.printCart();
         }
 
@@ -49,7 +45,7 @@ public class Main {
             }
             basket.addToCart(productNum, amount);
             basket.printCart();
-            basket.saveTxt(file);
+            basket.saveBin(file);
         }
     }
 }

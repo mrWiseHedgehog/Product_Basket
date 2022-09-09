@@ -21,11 +21,7 @@ public class Main {
             System.out.println(position + ". " + product + " " + price + " руб/шт");
         }
         if (!file.createNewFile()) {
-            String oldBasket = Basket.loadFromTxtFile(file);
-            String[] oldBasketArr = oldBasket.split(";");
-            for (int i = 0; i < oldBasketArr.length; i++) {
-                basket.addToCart(i, Integer.parseInt(oldBasketArr[i]));
-            }
+            basket = Basket.loadFromTxtFile(file);
             basket.printCart();
         }
 
@@ -42,12 +38,12 @@ public class Main {
             }
             int productNum = Integer.parseInt(inputArr[0]) - 1;
             int amount = Integer.parseInt(inputArr[1]);
-            if (productNum > products.length || productNum < 0) {
-                System.out.println(
-                        "Ошибка! Товара с таким номером не существует! Внимательно ознакомьтесь со списком продуктов.");
+            try {
+                basket.addToCart(productNum, amount);
+            } catch (ArrayIndexOutOfBoundsException exception) {
+                System.out.println("Товар с таким номером не найден!");
                 continue;
             }
-            basket.addToCart(productNum, amount);
             basket.printCart();
             basket.saveTxt(file);
         }

@@ -11,6 +11,7 @@ public class Main {
         String[] products = new String[]{"Яблоко", "Помидор", "Апельсин", "Груша"};
         int[] prices = new int[]{30, 50, 70, 40};
         Basket basket = new Basket(products, prices);
+        ClientLog clientLog = new ClientLog();
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Список возможных товаров для покупки");
@@ -44,8 +45,10 @@ public class Main {
                 System.out.println("Товар с таким номером не найден!");
                 continue;
             }
+            clientLog.log(productNum,amount);
             basket.printCart();
             basket.saveTxt(file);
+
         }
     }
 }

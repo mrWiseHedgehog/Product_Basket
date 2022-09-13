@@ -1,4 +1,8 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -6,12 +10,19 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        File file = new File("basket.txt");
+        File file = new File("basket.json");
+        File csvFile = new File("log.csv");
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
 
         String[] products = new String[]{"Яблоко", "Помидор", "Апельсин", "Груша"};
         int[] prices = new int[]{30, 50, 70, 40};
         Basket basket = new Basket(products, prices);
         ClientLog clientLog = new ClientLog();
+        if (!file.createNewFile()) {
+            basket = gson.fromJson(String.valueOf(file), Basket.class);
+            basket.printCart();
+        }
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Список возможных товаров для покупки");
@@ -20,10 +31,6 @@ public class Main {
             int price = basket.getPrices()[i];
             int position = i + 1;
             System.out.println(position + ". " + product + " " + price + " руб/шт");
-        }
-        if (!file.createNewFile()) {
-            basket = Basket.loadFromTxtFile(file);
-            basket.printCart();
         }
 
         while (true) {
@@ -45,9 +52,34 @@ public class Main {
                 System.out.println("Товар с таким номером не найден!");
                 continue;
             }
-            clientLog.log(productNum, amount);
+            clientLog.log(productNum + 1, amount);
+            gson.toJson(basket);
             basket.printCart();
-            basket.saveTxt(file);
+        }
+        clientLog.exportAsCSV(csvFile);
+
+//        JSONObject jsonBasket = new JSONObject();
+//        JSONArray jsonProducts = new JSONArray();
+//        for (String s : products) {
+//            jsonProducts.add(s);
+//        }
+//        JSONArray jsonPrices = new JSONArray();
+//        for (int s : prices) {
+//            jsonPrices.add(s);
+//        }
+//        JSONArray jsonAmount = new JSONArray();
+//        for (int s : basket.amountOfProductsInBasket) {
+//            jsonAmount.add(s);
+//        }
+//        jsonBasket.put("products", jsonProducts);
+//        jsonBasket.put("prices", jsonPrices);
+//        jsonBasket.put("amount", jsonAmount);
+//
+        try (FileWriter jsonWriter = new FileWriter(file)) {
+            jsonWriter.write(gson.toJson(basket));
+            jsonWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

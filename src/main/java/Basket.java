@@ -1,3 +1,6 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.*;
 
 public class Basket {
@@ -18,6 +21,7 @@ public class Basket {
     }
 
     public void printCart() {
+        totalPrice = 0;
         System.out.println("Ваша корзина:");
         for (int i = 0; i < products.length; i++) {
             if (amountOfProductsInBasket[i] != 0) {
@@ -26,7 +30,6 @@ public class Basket {
             }
         }
         System.out.println("Итого: " + totalPrice + " рублей");
-        totalPrice = 0;
     }
 
     public void saveTxt(File textFile) throws IOException {
@@ -46,30 +49,36 @@ public class Basket {
     }
 
     static Basket loadFromTxtFile(File textFile) throws IOException {
-        BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream(textFile)));
-        String productArr = " ";
-        String pricesString = " ";
-        String amountString = " ";
-        while (buff.ready()) {
-            productArr = buff.readLine();
-            pricesString = buff.readLine();
-            amountString = buff.readLine();
-        }
-        String[] products = productArr.split(";");
-        String[] pricesArr = pricesString.split(";");
-        int[] prices = new int[pricesArr.length];
-        for (int i = 0; i < prices.length; i++) {
-            prices[i] = Integer.parseInt(pricesArr[i]);
-        }
-        String[] amountArr = amountString.split(";");
-        int[] amount = new int[amountArr.length];
-        for (int i = 0; i < amount.length; i++) {
-            amount[i] = Integer.parseInt(amountArr[i]);
-        }
-        buff.close();
-        Basket basket = new Basket(products, prices);
-        basket.amountOfProductsInBasket = amount;
+        GsonBuilder builder = new GsonBuilder();
+        String jsonString = String.valueOf(textFile);
+        Gson gson = builder.create();
+        Basket basket = gson.fromJson(jsonString, Basket.class);
         return basket;
+
+//        BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream(textFile)));
+//        String productArr = " ";
+//        String pricesString = " ";
+//        String amountString = " ";
+//        while (buff.ready()) {
+//            productArr = buff.readLine();
+//            pricesString = buff.readLine();
+//            amountString = buff.readLine();
+//        }
+//        String[] products = productArr.split(";");
+//        String[] pricesArr = pricesString.split(";");
+//        int[] prices = new int[pricesArr.length];
+//        for (int i = 0; i < prices.length; i++) {
+//            prices[i] = Integer.parseInt(pricesArr[i]);
+//        }
+//        String[] amountArr = amountString.split(";");
+//        int[] amount = new int[amountArr.length];
+//        for (int i = 0; i < amount.length; i++) {
+//            amount[i] = Integer.parseInt(amountArr[i]);
+//        }
+//        buff.close();
+//        Basket basket = new Basket(products, prices);
+//        basket.amountOfProductsInBasket = amount;
+//        return basket;
     }
 
     public String[] getProducts() {

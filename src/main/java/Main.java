@@ -1,9 +1,8 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Scanner;
 
 public class Main {
@@ -20,7 +19,11 @@ public class Main {
         Basket basket = new Basket(products, prices);
         ClientLog clientLog = new ClientLog();
         if (!file.createNewFile()) {
-            basket = gson.fromJson(String.valueOf(file), Basket.class);
+            try (JsonReader reader = new JsonReader(new FileReader(file))) {
+                basket = gson.fromJson(reader, Basket.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             basket.printCart();
         }
 
@@ -58,23 +61,6 @@ public class Main {
         }
         clientLog.exportAsCSV(csvFile);
 
-//        JSONObject jsonBasket = new JSONObject();
-//        JSONArray jsonProducts = new JSONArray();
-//        for (String s : products) {
-//            jsonProducts.add(s);
-//        }
-//        JSONArray jsonPrices = new JSONArray();
-//        for (int s : prices) {
-//            jsonPrices.add(s);
-//        }
-//        JSONArray jsonAmount = new JSONArray();
-//        for (int s : basket.amountOfProductsInBasket) {
-//            jsonAmount.add(s);
-//        }
-//        jsonBasket.put("products", jsonProducts);
-//        jsonBasket.put("prices", jsonPrices);
-//        jsonBasket.put("amount", jsonAmount);
-//
         try (FileWriter jsonWriter = new FileWriter(file)) {
             jsonWriter.write(gson.toJson(basket));
             jsonWriter.flush();

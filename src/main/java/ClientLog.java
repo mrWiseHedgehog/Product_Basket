@@ -16,14 +16,12 @@ public class ClientLog {
     }
 
     public void exportAsCSV(File txtFile) {
-        try {
-            CSVWriter writer = new CSVWriter(new FileWriter(txtFile), ',',
-                    CSVWriter.NO_QUOTE_CHARACTER,
-                    CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                    CSVWriter.DEFAULT_LINE_END);
+        try (CSVWriter writer = new CSVWriter((new FileWriter(txtFile, true)), ',',
+                CSVWriter.NO_QUOTE_CHARACTER,
+                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                CSVWriter.DEFAULT_LINE_END)) {
             writer.writeNext(firstString);
             writer.writeAll(history);
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

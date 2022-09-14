@@ -13,6 +13,6 @@
 
     <log>
         <enabled>true</enabled>
-        <fileName>log.csv</fileName>
+        <fileName>client.csv</fileName>
     </log>
 </config>

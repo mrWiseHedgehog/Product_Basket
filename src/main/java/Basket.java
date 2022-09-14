@@ -48,14 +48,18 @@ public class Basket {
     }
 
     static Basket loadFromTxtFile(File textFile) throws IOException {
-        BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream(textFile)));
         String productArr = " ";
         String pricesString = " ";
         String amountString = " ";
-        while (buff.ready()) {
-            productArr = buff.readLine();
-            pricesString = buff.readLine();
-            amountString = buff.readLine();
+        try (BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream(textFile)))) {
+            while (buff.ready()) {
+                productArr = buff.readLine();
+                pricesString = buff.readLine();
+                amountString = buff.readLine();
+                buff.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         String[] products = productArr.split(";");
         String[] pricesArr = pricesString.split(";");
@@ -68,7 +72,6 @@ public class Basket {
         for (int i = 0; i < amount.length; i++) {
             amount[i] = Integer.parseInt(amountArr[i]);
         }
-        buff.close();
         Basket basket = new Basket(products, prices);
         basket.amountOfProductsInBasket = amount;
         return basket;

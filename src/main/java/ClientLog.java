@@ -20,7 +20,9 @@ public class ClientLog {
                 CSVWriter.NO_QUOTE_CHARACTER,
                 CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                 CSVWriter.DEFAULT_LINE_END)) {
-            writer.writeNext(firstString);
+            if (txtFile.length() == 0) {
+                writer.writeNext(firstString);
+            }
             writer.writeAll(history);
         } catch (IOException e) {
             e.printStackTrace();

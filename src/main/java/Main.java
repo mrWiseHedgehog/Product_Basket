@@ -1,15 +1,20 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
 
         File file = new File("basket.json");
-        File csvFile = new File("log.csv");
+        File csvFile = new File("client.csv");
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
@@ -17,14 +22,14 @@ public class Main {
         int[] prices = new int[]{30, 50, 70, 40};
         Basket basket = new Basket(products, prices);
         ClientLog clientLog = new ClientLog();
-        if (!file.createNewFile()) {
-            try (JsonReader reader = new JsonReader(new FileReader(file))) {
-                basket = gson.fromJson(reader, Basket.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            basket.printCart();
-        }
+//        if (!file.createNewFile()) {
+//            try (JsonReader reader = new JsonReader(new FileReader(file))) {
+//                basket = gson.fromJson(reader, Basket.class);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            basket.printCart();
+//        }
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Список возможных товаров для покупки");
@@ -66,5 +71,31 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+//        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//        DocumentBuilder xmlBuilder = factory.newDocumentBuilder();
+//        Document doc = xmlBuilder.parse(new File("shop.xml"));
+//        Node root = doc.getDocumentElement();
+//        System.out.println("Корневой элемент: " + root.getNodeName());
+//        read(root);
+//    }
+//
+//    private static void read(Node node) {
+//        NodeList nodeList = node.getChildNodes();
+//        for (int i = 0; i < nodeList.getLength(); i++) {
+//            Node node_ = nodeList.item(i);
+//            if (Node.ELEMENT_NODE == node_.getNodeType()) {
+//                System.out.println("Текущий узел: " + node_.getNodeName());
+//                Element element = (Element) node_;
+//                NamedNodeMap map = element.getAttributes();
+//                for (int a = 0; a < map.getLength(); a++) {
+//                    String attrName = map.item(a).getNodeName();
+//                    String attrValue = map.item(a).getNodeValue();
+//                    System.out.println("Атрибут: " + attrName + "; значение: " + attrValue);
+//                }
+//                read(node_);
+//            }
+//        }
+//    }
     }
 }

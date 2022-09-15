@@ -2,19 +2,79 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
+    public static void main(String[] args) throws IOException {
 
-        File file = new File("basket.json");
-        File csvFile = new File("client.csv");
+        boolean shouldLoad = true;
+        String loadFile = null;
+        String loadFormat = null;
+        boolean shouldSave = true;
+        String saveFile = null;
+        String saveFormat = null;
+        boolean shouldLog = true;
+        String logFile = null;
+
+        try {
+            File xmlFile = new File("shop.xml");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+
+            NodeList loadList = doc.getElementsByTagName("load");
+            for (int i = 0; i < loadList.getLength(); i++) {
+                Node node = loadList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) node;
+                    shouldLoad = Boolean.parseBoolean(eElement.getElementsByTagName("enabled")
+                            .item(0).getTextContent());
+                    loadFile = eElement.getElementsByTagName("fileName")
+                            .item(0).getTextContent();
+                    loadFormat = eElement.getElementsByTagName("format")
+                            .item(0).getTextContent();
+                }
+            }
+
+            NodeList saveList = doc.getElementsByTagName("save");
+            for (int i = 0; i < saveList.getLength(); i++) {
+                Node node = saveList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) node;
+                    shouldSave = Boolean.parseBoolean(eElement.getElementsByTagName("enabled")
+                            .item(0).getTextContent());
+                    saveFile = eElement.getElementsByTagName("fileName")
+                            .item(0).getTextContent();
+                    saveFormat = eElement.getElementsByTagName("format")
+                            .item(0).getTextContent();
+                }
+            }
+
+            NodeList logList = doc.getElementsByTagName("log");
+            for (int i = 0; i < saveList.getLength(); i++) {
+                Node node = logList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) node;
+                    shouldLog = Boolean.parseBoolean(eElement.getElementsByTagName("enabled")
+                            .item(0).getTextContent());
+                    logFile = eElement.getElementsByTagName("fileName")
+                            .item(0).getTextContent();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        File txtFile = new File("basket.txt");
+        if (loadFile == null) throw new AssertionError();
+        File jsonFile = new File(loadFile);
+        if (logFile == null) throw new AssertionError();
+        File csvFile = new File(logFile);
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
@@ -22,14 +82,16 @@ public class Main {
         int[] prices = new int[]{30, 50, 70, 40};
         Basket basket = new Basket(products, prices);
         ClientLog clientLog = new ClientLog();
-//        if (!file.createNewFile()) {
-//            try (JsonReader reader = new JsonReader(new FileReader(file))) {
-//                basket = gson.fromJson(reader, Basket.class);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            basket.printCart();
-//        }
+        if (shouldLoad && loadFormat.equals("json")) {
+            if (!jsonFile.createNewFile()) {
+                try (JsonReader reader = new JsonReader(new FileReader(jsonFile))) {
+                    basket = gson.fromJson(reader, Basket.class);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                basket.printCart();
+            }
+        }
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Список возможных товаров для покупки");
@@ -60,42 +122,23 @@ public class Main {
                 continue;
             }
             clientLog.log(productNum + 1, amount);
-            gson.toJson(basket);
             basket.printCart();
         }
-        clientLog.exportAsCSV(csvFile);
-
-        try (FileWriter jsonWriter = new FileWriter(file)) {
-            jsonWriter.write(gson.toJson(basket));
-            jsonWriter.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (shouldLog) {
+            clientLog.exportAsCSV(csvFile);
         }
 
-//        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-//        DocumentBuilder xmlBuilder = factory.newDocumentBuilder();
-//        Document doc = xmlBuilder.parse(new File("shop.xml"));
-//        Node root = doc.getDocumentElement();
-//        System.out.println("Корневой элемент: " + root.getNodeName());
-//        read(root);
-//    }
-//
-//    private static void read(Node node) {
-//        NodeList nodeList = node.getChildNodes();
-//        for (int i = 0; i < nodeList.getLength(); i++) {
-//            Node node_ = nodeList.item(i);
-//            if (Node.ELEMENT_NODE == node_.getNodeType()) {
-//                System.out.println("Текущий узел: " + node_.getNodeName());
-//                Element element = (Element) node_;
-//                NamedNodeMap map = element.getAttributes();
-//                for (int a = 0; a < map.getLength(); a++) {
-//                    String attrName = map.item(a).getNodeName();
-//                    String attrValue = map.item(a).getNodeValue();
-//                    System.out.println("Атрибут: " + attrName + "; значение: " + attrValue);
-//                }
-//                read(node_);
-//            }
-//        }
-//    }
+        if (saveFormat != null) {
+            if (shouldSave && saveFormat.equals("json")) {
+                try (FileWriter jsonWriter = new FileWriter(jsonFile)) {
+                    jsonWriter.write(gson.toJson(basket));
+                    jsonWriter.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (shouldLoad) {
+                basket.saveTxt(txtFile);
+            }
+        }
     }
 }

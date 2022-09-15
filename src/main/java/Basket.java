@@ -47,7 +47,7 @@ public class Basket {
         }
     }
 
-    static Basket loadFromTxtFile(File textFile) throws IOException {
+    static Basket loadFromTxtFile(File textFile) {
         String productArr = " ";
         String pricesString = " ";
         String amountString = " ";
@@ -76,6 +76,7 @@ public class Basket {
         basket.amountOfProductsInBasket = amount;
         return basket;
     }
+
 
     public String[] getProducts() {
         return products;
